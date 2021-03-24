@@ -1,0 +1,27 @@
+<resources>
+    <string name="app_name">Stock Quotes</string>
+    <string name="textViewStock">Stocks</string>
+    <string name="textViewFavourite">Favourite</string>
+    <string name="textViewChart">Chart</string>
+    <string name="textViewProfile">Profile</string>
+    <string name="textViewNews">News</string>
+    <string name="url_request">wss://ws.finnhub.io</string>
+    <string name="url_request_news">https://finnhub.io/api/v1/company-news</string>
+    <string name="api_key">c0torq748v6qoe9blg20</string>
+    <string name="api_key2">c1bmh1748v6sp0s4vmg0</string>
+    <string name="api_key3">c1br4nf48v6sp0s53p6g</string>
+    <string name="DJI">^DJI</string>
+    <string name="settings">settings</string>
+    <string name="favourite_list">favourite list</string>
+    <string name="stock_list">stock list</string>
+    <string name="time">time</string>
+    <string name="year">year</string>
+    <string name="month">month</string>
+    <string name="week">week</string>
+    <string name="profileContent">IPO date: %1$s\nPhone: %2$d\nNumber of outstanding shares: %3$s\nWebsite: %4$s\nIndustry: %5$s</string>
+    <string name="ipo">IPO date: %1$s</string>
+    <string name="phone">Phone: %1$d</string>
+    <string name="share">Number of outstanding shares: %1$s</string>
+    <string name="website">Website: %1$s</string>
+    <string name="industry">Industry: %1$s</string>
+</resources>
