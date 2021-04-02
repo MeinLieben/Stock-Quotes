@@ -306,7 +306,9 @@ class CompanyActivity : AppCompatActivity() {
         }
 
         ApiClient.apiKey["token"] = getString(R.string.api_key3)
-        initData()
+        if(isNetworkAvailable(this))
+            initData()
+        else messageNoConnection(this)
     }
 
     override fun onStop() {

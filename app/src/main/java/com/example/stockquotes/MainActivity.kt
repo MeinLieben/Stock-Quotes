@@ -166,46 +166,52 @@ class MainActivity : AppCompatActivity() {
             .url("${getString(R.string.url_request)}?token=${getString(R.string.api_key)}")
             .build()
 
-        if (preferences.contains(getString(R.string.stock_list))) {
-            stocks = gson.fromJson(
-                preferences.getString(getString(R.string.stock_list), ""),
-                Types.newParameterizedType(List::class.java, Stock::class.java)
-            )
-            tickers = stocks.map { it.ticker }
-            favouriteTickers = preferences.getStringSet(getString(R.string.favourite_list), setOf())
-                ?.toMutableList() ?: mutableListOf()
-            if (!preferences.contains(getString(R.string.time))) refreshQuotes()
-            else {
-                refreshTime = gson.fromJson(
-                    preferences.getString(getString(R.string.time), ""),
-                    Calendar::class.java
+        when {
+            preferences.contains(getString(R.string.stock_list)) -> {
+                stocks = gson.fromJson(
+                    preferences.getString(getString(R.string.stock_list), ""),
+                    Types.newParameterizedType(List::class.java, Stock::class.java)
                 )
-                if (openingTime.timeInMillis >= refreshTime.timeInMillis) refreshQuotes()
-            }
-            stocksAdapter = StockViewAdapter(stocks, favouriteTickers)
-            stockView.adapter = stocksAdapter
+                tickers = stocks.map { it.ticker }
+                favouriteTickers = preferences.getStringSet(getString(R.string.favourite_list), setOf())
+                    ?.toMutableList() ?: mutableListOf()
+                if (!preferences.contains(getString(R.string.time))) refreshQuotes()
+                else {
+                    refreshTime = gson.fromJson(
+                        preferences.getString(getString(R.string.time), ""),
+                        Calendar::class.java
+                    )
+                    if (openingTime.timeInMillis >= refreshTime.timeInMillis && isNetworkAvailable(this)) refreshQuotes()
+                }
+                stocksAdapter = StockViewAdapter(stocks, favouriteTickers)
+                stockView.adapter = stocksAdapter
 
-            ApiClient.client.newWebSocket(request, webSocketListener)
-        } else {
-            CoroutineScope(Dispatchers.IO).launch{
-                try {
-                    initTickerList()
-                }
-                catch (e: Exception){
-                    messageError()
-                    delay(3500)
-                    finish()
-                }
-                stocks = tickers.map { Stock(it) } as MutableList<Stock>
-                CoroutineScope(Dispatchers.Main).launch {
-                    stocksAdapter = StockViewAdapter(stocks, favouriteTickers)
-                    stockView.adapter = stocksAdapter
-                    ApiClient.apiKey["token"] = getString(R.string.api_key2)
-                    initStockData()
-                    refreshQuotes()
-                }
-                ApiClient.client.newWebSocket(request, webSocketListener)
+                if(isNetworkAvailable(this))
+                    ApiClient.client.newWebSocket(request, webSocketListener)
+                else messageNoConnection(this)
             }
+            isNetworkAvailable(this) -> {
+                CoroutineScope(Dispatchers.IO).launch{
+                    try {
+                        initTickerList()
+                    }
+                    catch (e: Exception){
+                        messageError()
+                        delay(3500)
+                        finish()
+                    }
+                    stocks = tickers.map { Stock(it) } as MutableList<Stock>
+                    CoroutineScope(Dispatchers.Main).launch {
+                        stocksAdapter = StockViewAdapter(stocks, favouriteTickers)
+                        stockView.adapter = stocksAdapter
+                        ApiClient.apiKey["token"] = getString(R.string.api_key2)
+                        initStockData()
+                        refreshQuotes()
+                    }
+                    ApiClient.client.newWebSocket(request, webSocketListener)
+                }
+            }
+            else -> messageNoConnection(this)
         }
     }
 
@@ -222,6 +228,7 @@ class MainActivity : AppCompatActivity() {
         toast.setGravity(Gravity.CENTER, 0, 0)
         toast.show()
     }
+
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
